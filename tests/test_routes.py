@@ -158,6 +158,11 @@ class TestAccountService(TestCase):
         data = response.get_json()
         self.assertEqual(data["name"], "Something Known")
 
+    def test_put_account_not_found(self):
+        """It should not Read an Account that is not found"""
+        response = self.client.put(f"{BASE_URL}/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_method_not_allowed(self):
         """It should not allow improper method call"""
         response = self.client.post(f"{BASE_URL}/0")
@@ -168,3 +173,11 @@ class TestAccountService(TestCase):
         account = self._create_accounts(1)[0]
         response = self.client.delete(f"{BASE_URL}/{account.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_get_account_list(self):
+        """It should fetch a list of accounts"""
+        self._create_accounts(5)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), 5)
